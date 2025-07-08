@@ -1,0 +1,7 @@
+{
+  "DefaultScanner": "TWAIN2 FreeImage Software Scanner",
+  "Dpi": 300,
+  "ColorMode": "Grayscale",
+  "UseAdf": true,
+  "TwainPreferred": false
+}
