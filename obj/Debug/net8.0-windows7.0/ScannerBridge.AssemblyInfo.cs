@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ScannerBridge")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b48cd1a11a1e6e3df67d8b899caaee2e1a5e3f7f")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+efcce03c90515ed6c34512d584fd05a5e79c62d8")]
 [assembly: System.Reflection.AssemblyProductAttribute("ScannerBridge")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ScannerBridge")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

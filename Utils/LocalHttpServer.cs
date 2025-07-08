@@ -30,6 +30,13 @@ namespace ScannerBridge
             }
         }
 
+        private void AddCorsHeaders(HttpListenerResponse response)
+        {
+            response.Headers.Add("Access-Control-Allow-Origin", "*");
+            response.Headers.Add("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+            response.Headers.Add("Access-Control-Allow-Headers", "Content-Type");
+        }
+
         private async Task ListenLoop()
         {
             while (_listener.IsListening)
@@ -49,28 +56,28 @@ namespace ScannerBridge
                         await context.Response.OutputStream.WriteAsync(buffer, 0, buffer.Length);
                         context.Response.Close();
                     }
-                    else if (path == "/scan")
+                    else if (context.Request.Url.AbsolutePath == "/scan")
                     {
                         Console.WriteLine("[+] Scan requested.");
+                        AddCorsHeaders(context.Response);
 
                         string scannerName = context.Request.QueryString["scanner"];
+
                         if (string.IsNullOrEmpty(scannerName))
                         {
-                            var all = ScannerManager.GetAllScanners();
+                            var all = WiaScannerHelper.GetAvailableScanners();
                             if (all.Count == 0)
-                            {
-                                context.Response.StatusCode = 404;
-                                await context.Response.OutputStream.WriteAsync(Encoding.UTF8.GetBytes("No scanners found."));
-                                context.Response.Close();
-                                continue;
-                            }
-                            scannerName = all[0]; // Use first scanner
-                            Console.WriteLine("⚠ No scanner specified, using default: " + scannerName);
+                                all = TwainScannerHelper.GetAvailableTwainScanners();
+
+                            if (all.Count == 0)
+                                throw new Exception("No scanners found.");
+
+                            scannerName = all.FirstOrDefault();
                         }
 
                         try
                         {
-                            List<string> images = ScannerManager.SafeScan(() =>
+                            var images = ScannerManager.SafeScan(() =>
                                 ScannerManager.Scan(scannerName)
                             );
 
@@ -85,10 +92,9 @@ namespace ScannerBridge
                         }
                         catch (Exception ex)
                         {
-                            Console.WriteLine("❌ Scan error: " + ex.Message);
                             context.Response.StatusCode = 500;
-                            byte[] errorMsg = Encoding.UTF8.GetBytes("Scan error: " + ex.Message);
-                            await context.Response.OutputStream.WriteAsync(errorMsg, 0, errorMsg.Length);
+                            byte[] error = Encoding.UTF8.GetBytes("Error: " + ex.Message);
+                            await context.Response.OutputStream.WriteAsync(error, 0, error.Length);
                         }
                         finally
                         {

@@ -30,5 +30,19 @@ namespace ScannerBridge.Utils
                 return WiaScannerHelper.Scan(scannerName);
             }
         }
+        
+        public static List<string> GetAllScanners()
+        {
+            var scanners = new List<string>();
+
+            var wia = WiaScannerHelper.GetAvailableScanners();
+            if (wia.Count > 0)
+                scanners.AddRange(wia);
+            else
+                scanners.AddRange(TwainScannerHelper.GetAvailableTwainScanners());
+
+            return scanners;
+        }
+
     }
 }
