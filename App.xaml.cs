@@ -11,9 +11,6 @@ namespace ScannerBridge
 
             var server = new LocalHttpServer();
             server.Start();
-
-            var main = new MainWindow();
-            main.Show();
         }
     }
 }

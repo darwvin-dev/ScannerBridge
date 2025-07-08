@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "CjvnFE7VmLA=",
+  "success": true,
+  "projectFilePath": "D:\\Desktop\\Projects\\ScannerBridge\\ScannerBridge\\ScannerBridge.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\darwvin_PC\\.nuget\\packages\\newtonsoft.json\\13.0.3\\newtonsoft.json.13.0.3.nupkg.sha512",
+    "C:\\Users\\darwvin_PC\\.nuget\\packages\\ntwain\\3.7.5\\ntwain.3.7.5.nupkg.sha512"
+  ],
+  "logs": []
+}

@@ -26,8 +26,7 @@ namespace ScannerBridge
             catch (HttpListenerException ex)
             {
                 Console.WriteLine("HttpListener error: " + ex.Message);
-                // ⚠ در ویندوز باید آدرس مجاز با netsh ثبت شود:
-                // netsh http add urlacl url=http://localhost:14859/ user=Everyone
+                Console.WriteLine("Try: netsh http add urlacl url=http://localhost:14859/ user=Everyone");
             }
         }
 
@@ -38,30 +37,63 @@ namespace ScannerBridge
                 try
                 {
                     var context = await _listener.GetContextAsync();
+                    var path = context.Request.Url.AbsolutePath;
 
-                    if (context.Request.Url.AbsolutePath == "/scan")
+                    if (path == "/scanners")
                     {
-                        Console.WriteLine("[+] Scan requested.");
-
-                        var settings = SettingsManager.Load();
-
-                        List<string> images = ScannerManager.SafeScan(() =>
-                        {
-                            if (settings.TwainPreferred)
-                                return ScannerManager.ScanWithTwain(settings.DefaultScanner);
-                            else
-                                return ScannerManager.ScanWithWia(settings.DefaultScanner, settings.Dpi, settings.ColorMode, settings.UseAdf);
-                        });
-
-                        var json = JsonConvert.SerializeObject(images);
+                        var scanners = ScannerManager.GetAllScanners();
+                        var json = JsonConvert.SerializeObject(scanners);
                         byte[] buffer = Encoding.UTF8.GetBytes(json);
 
                         context.Response.ContentType = "application/json";
-                        context.Response.ContentEncoding = Encoding.UTF8;
-                        context.Response.ContentLength64 = buffer.Length;
-
                         await context.Response.OutputStream.WriteAsync(buffer, 0, buffer.Length);
                         context.Response.Close();
+                    }
+                    else if (path == "/scan")
+                    {
+                        Console.WriteLine("[+] Scan requested.");
+
+                        string scannerName = context.Request.QueryString["scanner"];
+                        if (string.IsNullOrEmpty(scannerName))
+                        {
+                            var all = ScannerManager.GetAllScanners();
+                            if (all.Count == 0)
+                            {
+                                context.Response.StatusCode = 404;
+                                await context.Response.OutputStream.WriteAsync(Encoding.UTF8.GetBytes("No scanners found."));
+                                context.Response.Close();
+                                continue;
+                            }
+                            scannerName = all[0]; // Use first scanner
+                            Console.WriteLine("⚠ No scanner specified, using default: " + scannerName);
+                        }
+
+                        try
+                        {
+                            List<string> images = ScannerManager.SafeScan(() =>
+                                ScannerManager.Scan(scannerName)
+                            );
+
+                            var json = JsonConvert.SerializeObject(images);
+                            byte[] buffer = Encoding.UTF8.GetBytes(json);
+
+                            context.Response.ContentType = "application/json";
+                            context.Response.ContentEncoding = Encoding.UTF8;
+                            context.Response.ContentLength64 = buffer.Length;
+
+                            await context.Response.OutputStream.WriteAsync(buffer, 0, buffer.Length);
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine("❌ Scan error: " + ex.Message);
+                            context.Response.StatusCode = 500;
+                            byte[] errorMsg = Encoding.UTF8.GetBytes("Scan error: " + ex.Message);
+                            await context.Response.OutputStream.WriteAsync(errorMsg, 0, errorMsg.Length);
+                        }
+                        finally
+                        {
+                            context.Response.Close();
+                        }
                     }
                     else
                     {
