@@ -1,6 +1,7 @@
 using System.Collections.Generic;
-using WIA;
 using System.IO;
+using System;
+using WIA;
 
 namespace ScannerBridge.Utils
 {

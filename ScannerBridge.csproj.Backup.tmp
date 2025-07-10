@@ -4,12 +4,29 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net48</TargetFramework>
     <Nullable>disable</Nullable>
+    <!-- <ImplicitUsings>enable</ImplicitUsings> -->
     <UseWPF>true</UseWPF>
-    <PlatformTarget>x86</PlatformTarget>
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <Platforms>AnyCPU;x86</Platforms>
-    <LangVersion>9</LangVersion>
+    <LangVersion>7.3</LangVersion>
     <ImplicitUsings>false</ImplicitUsings>
-    <ApplicationIcon>icon.ico</ApplicationIcon>
+
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <Prefer32Bit>True</Prefer32Bit>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
+    <Prefer32Bit>True</Prefer32Bit>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <Prefer32Bit>True</Prefer32Bit>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
+    <Prefer32Bit>True</Prefer32Bit>
   </PropertyGroup>
 
   <ItemGroup>
@@ -36,7 +53,6 @@
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="NTwain" Version="3.7.5" />
-    <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
 
 </Project>

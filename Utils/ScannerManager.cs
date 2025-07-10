@@ -1,6 +1,10 @@
 using System.IO;
 using NTwain;
 using NTwain.Data;
+using System;
+using System.Collections.Generic;
+using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 
 namespace ScannerBridge.Utils
 {
@@ -30,7 +34,7 @@ namespace ScannerBridge.Utils
                 return WiaScannerHelper.Scan(scannerName);
             }
         }
-        
+
         public static List<string> GetAllScanners()
         {
             var scanners = new List<string>();

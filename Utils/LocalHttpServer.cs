@@ -1,11 +1,10 @@
 using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Net;
 using System.Text;
-using System.Threading.Tasks;
 using Newtonsoft.Json;
 using ScannerBridge.Utils;
+using System.Threading.Tasks;
+using System.Linq;
 
 namespace ScannerBridge
 {

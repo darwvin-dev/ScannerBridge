@@ -1,0 +1,8 @@
+is_global = true
+build_property.RootNamespace = ScannerBridge
+build_property.ProjectDir = D:\Desktop\Projects\ScannerBridge\ScannerBridge\
+build_property.EnableComHosting = 
+build_property.EnableGeneratedComInterfaceComImportInterop = 
+build_property.CsWinRTUseWindowsUIXamlProjections = false
+build_property.EffectiveAnalysisLevelStyle = 
+build_property.EnableCodeStyleSeverity = 

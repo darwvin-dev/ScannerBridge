@@ -5,6 +5,7 @@ using System.Threading;
 using NTwain;
 using NTwain.Data;
 using System.Reflection;
+using System.Linq;
 
 namespace ScannerBridge.Utils
 {
@@ -31,7 +32,7 @@ namespace ScannerBridge.Utils
             return scanners;
         }
 
-        public static List<string> Scan(string scannerName, bool useShowUI = true)
+        public static List<string> Scan(string scannerName, bool useShowUI = false)
         {
             var images = new List<string>();
             var waitHandle = new AutoResetEvent(false);
@@ -45,7 +46,7 @@ namespace ScannerBridge.Utils
                 if (session.State < 3)
                     throw new Exception("TWAIN session failed to open.");
 
-                var source = session.FirstOrDefault(x => x.Name == scannerName);
+                var source = session.GetSources()?.FirstOrDefault(x => x.Name == scannerName);
                 if (source == null)
                     throw new Exception("TWAIN scanner not found.");
 
