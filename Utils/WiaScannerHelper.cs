@@ -26,7 +26,7 @@ namespace ScannerBridge.Utils
             return scanners;
         }
 
-        public static List<string> Scan(string scannerName, int dpi = 300, string colorMode = "Color", bool useAdf = true)
+        public static List<string> Scan(string scannerName, ScannerSettings settings)
         {
             var images = new List<string>();
             var deviceManager = new DeviceManager();
@@ -49,10 +49,10 @@ namespace ScannerBridge.Utils
             var device = selectedScanner.Connect();
             var item = device.Items[1];
 
-            SetItemIntProperty(item, 6147, dpi); // Horizontal Resolution
-            SetItemIntProperty(item, 6148, dpi); // Vertical Resolution
-            SetItemIntProperty(item, 6146, colorMode switch { "Grayscale" => 2, "BlackWhite" => 4, _ => 1 }); // Color Mode
-            SetItemIntProperty(item, 3088, useAdf ? 1 : 0); // Document Handling (ADF)
+            SetItemIntProperty(item, 6147, settings.DPI); // Horizontal Resolution
+            SetItemIntProperty(item, 6148, settings.DPI); // Vertical Resolution
+            SetItemIntProperty(item, 6146, settings.ColorMode.ToLower() switch { "Grayscale" => 2, "BlackWhite" => 4, _ => 1 }); // Color Mode
+            SetItemIntProperty(item, 3088, settings.Source.ToLower() == "adf" ? 1 : 0); // Document Handling (ADF)
 
             Console.WriteLine("Starting WIA transfer...");
 

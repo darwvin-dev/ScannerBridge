@@ -23,15 +23,15 @@ namespace ScannerBridge.Utils
             }
         }
 
-        public static List<string> Scan(string scannerName)
+        public static List<string> Scan(string scannerName, ScannerSettings settings)
         {
             try
             {
-                return TwainScannerHelper.Scan(scannerName);
+                return TwainScannerHelper.Scan(scannerName, settings);
             }
             catch
             {
-                return WiaScannerHelper.Scan(scannerName);
+                return WiaScannerHelper.Scan(scannerName, settings);
             }
         }
 

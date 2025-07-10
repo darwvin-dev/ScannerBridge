@@ -1,12 +1,14 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Forms;
 using System.Windows.Media;
 using ScannerBridge.Utils;
-using System.Windows.Forms;
-using System.Drawing;
-using System;
-using System.IO;
 
 namespace ScannerBridge
 {
@@ -18,8 +20,107 @@ namespace ScannerBridge
         {
             InitializeComponent();
             InitializeTrayIcon();
+            this.Hide(); 
+        }
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
             LoadScanners();
-            this.Hide();
+
+            var settings = SettingsStorage.Load();
+            if (settings != null)
+            {
+                ScannerComboBox.SelectedItem = settings.SelectedScanner;
+
+                DpiComboBox.SelectedItem = DpiComboBox.Items
+                    .OfType<ComboBoxItem>()
+                    .FirstOrDefault(i => i.Content.ToString() == settings.DPI.ToString());
+
+                SourceComboBox.SelectedItem = SourceComboBox.Items
+                    .OfType<ComboBoxItem>()
+                    .FirstOrDefault(i => i.Content.ToString() == settings.Source);
+
+                ColorModeComboBox.SelectedItem = ColorModeComboBox.Items
+                    .OfType<ComboBoxItem>()
+                    .FirstOrDefault(i => i.Content.ToString() == settings.ColorMode);
+            }
+        }
+
+        private void LoadScanners()
+        {
+            ScannerComboBox.Items.Clear();
+
+            var scanners = ScannerManager.GetAllScanners();
+
+            foreach (var scanner in scanners)
+                ScannerComboBox.Items.Add(scanner);
+
+            if (ScannerComboBox.Items.Count > 0)
+                ScannerComboBox.SelectedIndex = 0;
+        }
+
+        private void ScanButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (ScannerComboBox.SelectedItem == null)
+            {
+                System.Windows.MessageBox.Show("Please select a scanner.");
+                return;
+            }
+
+            var selectedScanner = ScannerComboBox.SelectedItem.ToString();
+            var dpi = int.Parse(((ComboBoxItem)DpiComboBox.SelectedItem).Content.ToString());
+            var source = ((ComboBoxItem)SourceComboBox.SelectedItem).Content.ToString();
+            var colorMode = ((ComboBoxItem)ColorModeComboBox.SelectedItem).Content.ToString();
+
+            var settings = new ScannerSettings
+            {
+                SelectedScanner = selectedScanner,
+                DPI = dpi,
+                Source = source,
+                ColorMode = colorMode
+            };
+
+            SettingsStorage.Save(settings); 
+
+            ScanButton.IsEnabled = false;
+            ScanStatus.Text = "🔄 Scanning in progress...";
+            ScanStatus.Foreground = new SolidColorBrush(Colors.DarkOrange);
+
+            Task.Run(() =>
+            {
+                try
+                {
+                    List<string> images = ScannerManager.SafeScan(() =>
+                        ScannerManager.Scan(settings.SelectedScanner, settings)
+                    );
+
+                    Dispatcher.Invoke(() =>
+                    {
+                        if (images.Count > 0)
+                        {
+                            ScanStatus.Text = $"✅ Successfully scanned {images.Count} page(s).";
+                            ScanStatus.Foreground = new SolidColorBrush(Colors.Green);
+                        }
+                        else
+                        {
+                            ScanStatus.Text = "⚠ No pages were scanned.";
+                            ScanStatus.Foreground = new SolidColorBrush(Colors.Orange);
+                        }
+                    });
+                }
+                catch (Exception ex)
+                {
+                    Dispatcher.Invoke(() =>
+                    {
+                        ScanStatus.Text = $"❌ Scan failed: {ex.Message}";
+                        ScanStatus.Foreground = new SolidColorBrush(Colors.Red);
+                    });
+                }
+                finally
+                {
+                    Dispatcher.Invoke(() => ScanButton.IsEnabled = true);
+                }
+            });
         }
 
         private void InitializeTrayIcon()
@@ -57,76 +158,9 @@ namespace ScannerBridge
         protected override void OnStateChanged(EventArgs e)
         {
             if (this.WindowState == WindowState.Minimized)
-            {
                 this.Hide();
-            }
+
             base.OnStateChanged(e);
-        }
-
-        private void LoadScanners()
-        {
-            ScannerComboBox.Items.Clear();
-
-            var scanners = WiaScannerHelper.GetAvailableScanners();
-            if (scanners.Count == 0)
-                scanners = TwainScannerHelper.GetAvailableTwainScanners();
-
-            foreach (var scanner in scanners)
-                ScannerComboBox.Items.Add(scanner);
-
-            if (ScannerComboBox.Items.Count > 0)
-                ScannerComboBox.SelectedIndex = 0;
-        }
-
-        private void ScanButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (ScannerComboBox.SelectedItem == null)
-            {
-                System.Windows.MessageBox.Show("Please select a scanner.");
-                return;
-            }
-
-            string selectedScanner = ScannerComboBox.SelectedItem.ToString();
-
-            ScanButton.IsEnabled = false;
-            ScanStatus.Text = "🔄 Scanning in progress...";
-            ScanStatus.Foreground = new SolidColorBrush(Colors.DarkOrange);
-
-            Task.Run(() =>
-            {
-                try
-                {
-                    List<string> images = ScannerManager.SafeScan(() =>
-                        ScannerManager.Scan(selectedScanner)
-                    );
-
-                    Dispatcher.Invoke(() =>
-                    {
-                        if (images.Count > 0)
-                        {
-                            ScanStatus.Text = $"✅ Successfully scanned {images.Count} page(s).";
-                            ScanStatus.Foreground = new SolidColorBrush(Colors.Green);
-                        }
-                        else
-                        {
-                            ScanStatus.Text = "⚠ No pages were scanned.";
-                            ScanStatus.Foreground = new SolidColorBrush(Colors.Orange);
-                        }
-                    });
-                }
-                catch (Exception ex)
-                {
-                    Dispatcher.Invoke(() =>
-                    {
-                        ScanStatus.Text = $"❌ Scan failed: {ex.Message}";
-                        ScanStatus.Foreground = new SolidColorBrush(Colors.Red);
-                    });
-                }
-                finally
-                {
-                    Dispatcher.Invoke(() => ScanButton.IsEnabled = true);
-                }
-            });
         }
     }
 }

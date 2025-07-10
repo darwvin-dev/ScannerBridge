@@ -60,24 +60,11 @@ namespace ScannerBridge
                         Console.WriteLine("[+] Scan requested.");
                         AddCorsHeaders(context.Response);
 
-                        string scannerName = context.Request.QueryString["scanner"];
-
-                        if (string.IsNullOrEmpty(scannerName))
-                        {
-                            var all = WiaScannerHelper.GetAvailableScanners();
-                            if (all.Count == 0)
-                                all = TwainScannerHelper.GetAvailableTwainScanners();
-
-                            if (all.Count == 0)
-                                throw new Exception("No scanners found.");
-
-                            scannerName = all.FirstOrDefault();
-                        }
-
                         try
                         {
+                            var settings = SettingsStorage.Load();
                             var images = ScannerManager.SafeScan(() =>
-                                ScannerManager.Scan(scannerName)
+                                ScannerManager.Scan(settings.SelectedScanner, settings)
                             );
 
                             var json = JsonConvert.SerializeObject(images);
