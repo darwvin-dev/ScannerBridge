@@ -1,70 +1,60 @@
 ﻿<Window x:Class="ScannerBridge.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="ScannerBridge"
-        Height="540"
+        Title="Document Scanner"
+        Height="550"
         Width="460"
-        WindowStartupLocation="CenterScreen"
         ResizeMode="NoResize"
-        Background="#F9F9F9"
+        WindowStartupLocation="CenterScreen"
+        Background="#FAFAFA"
         FontFamily="Segoe UI"
-        Loaded="Window_Loaded">
+        Loaded="Window_Loaded"
+>
 
     <Grid Margin="20">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/> <!-- Header -->
-            <RowDefinition Height="Auto"/> <!-- Settings -->
-            <RowDefinition Height="Auto"/> <!-- Button -->
-            <RowDefinition Height="*"/>    <!-- Status -->
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
         <!-- Header -->
-        <Border Background="#0078D7"
-                Padding="12"
-                CornerRadius="6"
-                Margin="0 0 0 20"
-                Grid.Row="0">
+        <Border Background="#0063B1"
+                Padding="14"
+                CornerRadius="8"
+                Margin="0 0 0 20">
             <TextBlock Text="🖨 Document Scanner"
-                       FontSize="18"
-                       FontWeight="Bold"
+                       FontSize="20"
+                       FontWeight="SemiBold"
                        Foreground="White"
                        HorizontalAlignment="Center"/>
         </Border>
 
-        <!-- Scanner Settings -->
+        <!-- Content -->
         <StackPanel Grid.Row="1"
                     Orientation="Vertical"
                     HorizontalAlignment="Center"
-                    Margin="0 0 0 15"
-                    Width="320">
+                    Width="340">
 
-            <!-- Scanner Selection -->
-            <TextBlock Text="Select your scanner:"
-                       FontSize="14"
-                       FontWeight="SemiBold"
-                       Foreground="#444"
-                       Margin="0 0 0 5"/>
-            <ComboBox Name="ScannerComboBox"
-                      Height="36"
-                      FontSize="13"
-                      Padding="5"
-                      Background="White"
-                      BorderBrush="#CCC"
-                      Margin="0 0 0 10"/>
+            <!-- ComboBoxes Template Style -->
+            <StackPanel.Resources>
+                <Style TargetType="ComboBox">
+                    <Setter Property="Height" Value="40"/>
+                    <Setter Property="FontSize" Value="14"/>
+                    <Setter Property="Padding" Value="10,4"/>
+                    <Setter Property="Background" Value="White"/>
+                    <Setter Property="BorderBrush" Value="#DDD"/>
+                    <Setter Property="BorderThickness" Value="1"/>
+                    <Setter Property="Margin" Value="0,0,0,6"/>
+                </Style>
+            </StackPanel.Resources>
 
-            <!-- Resolution -->
-            <TextBlock Text="Resolution (DPI):"
-                       FontSize="14"
-                       FontWeight="SemiBold"
-                       Foreground="#444"
-                       Margin="0 5 0 5"/>
-            <ComboBox Name="DpiComboBox"
-                      Height="36"
-                      FontSize="13"
-                      Padding="5"
-                      Background="White"
-                      BorderBrush="#CCC"
-                      Margin="0 0 0 10">
+            <!-- Scanner -->
+            <TextBlock Text="Select Scanner:" FontWeight="SemiBold" Foreground="#444"/>
+            <ComboBox Name="ScannerComboBox"/>
+
+            <!-- DPI -->
+            <TextBlock Text="Resolution (DPI):" FontWeight="SemiBold" Foreground="#444"/>
+            <ComboBox Name="DpiComboBox">
                 <ComboBoxItem Content="100"/>
                 <ComboBoxItem Content="150"/>
                 <ComboBoxItem Content="200"/>
@@ -72,81 +62,49 @@
                 <ComboBoxItem Content="600"/>
             </ComboBox>
 
-            <!-- Scan Source -->
-            <TextBlock Text="Scan Source:"
-                       FontSize="14"
-                       FontWeight="SemiBold"
-                       Foreground="#444"
-                       Margin="0 5 0 5"/>
-            <ComboBox Name="SourceComboBox"
-                      Height="36"
-                      FontSize="13"
-                      Padding="5"
-                      Background="White"
-                      BorderBrush="#CCC"
-                      Margin="0 0 0 10">
+            <!-- Source -->
+            <TextBlock Text="Scan Source:" FontWeight="SemiBold" Foreground="#444"/>
+            <ComboBox Name="SourceComboBox">
                 <ComboBoxItem Content="Flatbed" IsSelected="True"/>
                 <ComboBoxItem Content="ADF"/>
             </ComboBox>
 
             <!-- Color Mode -->
-            <TextBlock Text="Color Mode:"
-                       FontSize="14"
-                       FontWeight="SemiBold"
-                       Foreground="#444"
-                       Margin="0 5 0 5"/>
-            <ComboBox Name="ColorModeComboBox"
-                      Height="36"
-                      FontSize="13"
-                      Padding="5"
-                      Background="White"
-                      BorderBrush="#CCC"
-                      Margin="0 0 0 10">
+            <TextBlock Text="Color Mode:" FontWeight="SemiBold" Foreground="#444"/>
+            <ComboBox Name="ColorModeComboBox">
                 <ComboBoxItem Content="Color" IsSelected="True"/>
                 <ComboBoxItem Content="Grayscale"/>
                 <ComboBoxItem Content="BlackWhite"/>
             </ComboBox>
-        </StackPanel>
 
-        <!-- Scan Button -->
-        <Button Grid.Row="2"
-                Name="ScanButton"
-                Content="📄 Scan Document"
-                Width="220"
-                Height="48"
-                FontSize="15"
-                FontWeight="Bold"
-                Background="#28A745"
-                Foreground="White"
-                Cursor="Hand"
-                BorderThickness="0"
-                BorderBrush="Transparent"
-                Margin="0 10 0 0"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Top"
-                Click="ScanButton_Click">
-            <Button.Effect>
-                <DropShadowEffect BlurRadius="5"
-                                  ShadowDepth="2"
-                                  Opacity="0.3"/>
-            </Button.Effect>
-        </Button>
+            <!-- Scan Button -->
+            <Button Name="ScanButton"
+                    Content="📄 Start Scan"
+                    Width="220"
+                    Height="46"
+                    FontSize="15"
+                    FontWeight="Bold"
+                    Foreground="White"
+                    Background="#28A745"
+                    BorderThickness="0"
+                    Cursor="Hand"
+                    Click="ScanButton_Click">
+                <Button.Effect>
+                    <DropShadowEffect BlurRadius="6"
+                                      ShadowDepth="1"
+                                      Opacity="0.25"/>
+                </Button.Effect>
+            </Button>
 
-        <!-- Status Text -->
-        <StackPanel Grid.Row="3"
-                    VerticalAlignment="Center"
-                    HorizontalAlignment="Center"
-                    Margin="0 30 0 0">
+            <!-- Status -->
             <TextBlock x:Name="ScanStatus"
-                       Text=""
+                       Text="Ready to scan..."
                        FontSize="13"
-                       FontWeight="Medium"
-                       Foreground="#333"
+                       Foreground="#444"
+                       Margin="0,10,0,0"
                        TextAlignment="Center"
-                       HorizontalAlignment="Center"
                        TextWrapping="Wrap"
-                       Width="360"/>
+                       HorizontalAlignment="Center"/>
         </StackPanel>
-
     </Grid>
 </Window>

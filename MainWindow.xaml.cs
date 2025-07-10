@@ -20,7 +20,7 @@ namespace ScannerBridge
         {
             InitializeComponent();
             InitializeTrayIcon();
-            this.Hide(); 
+            this.Hide();
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -30,7 +30,9 @@ namespace ScannerBridge
             var settings = SettingsStorage.Load();
             if (settings != null)
             {
-                ScannerComboBox.SelectedItem = settings.SelectedScanner;
+                ScannerComboBox.SelectedItem = ScannerComboBox.Items
+                    .OfType<ScannerInfo>()
+                    .FirstOrDefault(i => i.Name == settings.SelectedScanner);
 
                 DpiComboBox.SelectedItem = DpiComboBox.Items
                     .OfType<ComboBoxItem>()
@@ -51,7 +53,6 @@ namespace ScannerBridge
             ScannerComboBox.Items.Clear();
 
             var scanners = ScannerManager.GetAllScanners();
-
             foreach (var scanner in scanners)
                 ScannerComboBox.Items.Add(scanner);
 
@@ -59,9 +60,11 @@ namespace ScannerBridge
                 ScannerComboBox.SelectedIndex = 0;
         }
 
+
         private void ScanButton_Click(object sender, RoutedEventArgs e)
         {
-            if (ScannerComboBox.SelectedItem == null)
+            var scannerInfo = ScannerComboBox.SelectedItem as ScannerInfo;
+            if (scannerInfo == null)
             {
                 System.Windows.MessageBox.Show("Please select a scanner.");
                 return;
@@ -76,11 +79,12 @@ namespace ScannerBridge
             {
                 SelectedScanner = selectedScanner,
                 DPI = dpi,
+                ScannerType = scannerInfo.Type,
                 Source = source,
                 ColorMode = colorMode
             };
 
-            SettingsStorage.Save(settings); 
+            SettingsStorage.Save(settings);
 
             ScanButton.IsEnabled = false;
             ScanStatus.Text = "🔄 Scanning in progress...";

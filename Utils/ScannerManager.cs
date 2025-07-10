@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace ScannerBridge.Utils
 {
@@ -25,28 +26,44 @@ namespace ScannerBridge.Utils
 
         public static List<string> Scan(string scannerName, ScannerSettings settings)
         {
+            if (settings.ScannerType == "TWAIN")
+                return TwainScannerHelper.Scan(scannerName, settings);
+            else if (settings.ScannerType == "WIA")
+                return WiaScannerHelper.Scan(scannerName, settings);
+            else
+                throw new NotSupportedException("Unsupported scanner type.");
+        }
+
+
+        public static List<ScannerInfo> GetAllScanners()
+        {
+            var list = new List<ScannerInfo>();
+
             try
             {
-                return TwainScannerHelper.Scan(scannerName, settings);
+                var twainScanners = TwainScannerHelper.GetAvailableTwainScanners();
+                list.AddRange(twainScanners.Select(name => new ScannerInfo
+                {
+                    Name = name,
+                    Type = "TWAIN"
+                }));
             }
-            catch
+            catch { }
+
+            try
             {
-                return WiaScannerHelper.Scan(scannerName, settings);
+                var wiaScanners = WiaScannerHelper.GetAvailableScanners();
+                list.AddRange(wiaScanners.Select(name => new ScannerInfo
+                {
+                    Name = name,
+                    Type = "WIA"
+                }));
             }
+            catch { }
+
+            return list;
         }
 
-        public static List<string> GetAllScanners()
-        {
-            var scanners = new List<string>();
-
-            var wia = WiaScannerHelper.GetAvailableScanners();
-            if (wia.Count > 0)
-                scanners.AddRange(wia);
-            else
-                scanners.AddRange(TwainScannerHelper.GetAvailableTwainScanners());
-
-            return scanners;
-        }
 
     }
 }
